@@ -246,6 +246,42 @@
 </html>
 
 <?php
+function update_data_in_table($column_name, $new_value)
+{
+    // Connexion à la base de données
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "hes";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    // Vérifier la connexion
+    if ($conn->connect_error) {
+        die("Connexion échouée : " . $conn->connect_error);
+    }
+
+    // Préparer la requête pour mettre à jour la dernière ligne dans la table hes
+    $stmt = $conn->prepare("UPDATE hes SET $column_name = ?, DateAjout = NOW() ORDER BY DateAjout DESC LIMIT 1");
+
+    // Lier la nouvelle valeur au paramètre dans la requête
+    $stmt->bind_param("s", $new_value);
+
+    // Exécuter la requête
+    if ($stmt->execute()) {
+        // Nouvelle valeur mise à jour avec succès
+        return true;
+    } else {
+        // Erreur lors de la mise à jour
+        return false;
+    }
+
+    // Fermer la connexion à la base de données
+    $conn->close();
+}
+?>
+
+<?php
 function get_data_from_table($column_name)
 {
     // Connexion à la base de données
@@ -261,19 +297,51 @@ function get_data_from_table($column_name)
         die("Connexion échouée : " . $conn->connect_error);
     }
 
-    // Requête pour récupérer la dernière ligne ajoutée à la table hes
-    $sql = "SELECT $column_name FROM hes ORDER BY DateAjout DESC LIMIT 1";
-    $result = $conn->query($sql);
+    if ($column_name === 'NbrJsA') {
+        // Requête pour récupérer la dernière ligne ajoutée à la table hes
+        $sql = "SELECT $column_name, DateAjout FROM hes ORDER BY DateAjout DESC LIMIT 1";
+        $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        return $row[$column_name];
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $nbrJsA = $row[$column_name];
+            $dateAjout = $row['DateAjout'];
+
+            // Calculer le nombre de jours entre la date d'ajout et aujourd'hui
+            $dateAjout = new DateTime($dateAjout);
+            $aujourdhui = new DateTime();
+            $interval = $dateAjout->diff($aujourdhui);
+            $joursEcoulés = $interval->days;
+
+            // Ajouter le nombre de jours à la valeur de 'NbrJsA'
+            $nbrJsA += $joursEcoulés;
+
+            // Enregistrer la nouvelle valeur de 'NbrJsA' dans la dernière ligne de la table 'hes'
+            if (update_data_in_table($column_name, $nbrJsA)) {
+                // Retourne la nouvelle valeur mise à jour
+                return $nbrJsA;
+            } else {
+                // Erreur lors de la mise à jour de la nouvelle valeur
+                return "Erreur lors de la mise à jour de la nouvelle valeur";
+            }
+        }
     } else {
-        return "Aucune donnée trouvée"; // Renvoie un message si aucune donnée trouvée
+        // Requête pour récupérer la dernière ligne ajoutée à la table hes
+        $sql = "SELECT $column_name FROM hes ORDER BY DateAjout DESC LIMIT 1";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row[$column_name];
+        }
     }
+
+    return "Aucune donnée trouvée"; // Renvoie un message si aucune donnée trouvée
 
     // Fermer la connexion à la base de données
     $conn->close();
 }
-
 ?>
+
+
+
