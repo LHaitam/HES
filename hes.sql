@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : lun. 31 juil. 2023 à 10:02
+-- Généré le : mer. 02 août 2023 à 10:30
 -- Version du serveur : 10.4.22-MariaDB
 -- Version de PHP : 8.1.1
 
@@ -40,17 +40,6 @@ CREATE TABLE `hes` (
   `RecyclPLAN` int(11) NOT NULL,
   `DateAjout` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Déchargement des données de la table `hes`
---
-
-INSERT INTO `hes` (`NbrPrsn`, `NbrJsA`, `GazYTD`, `GazPLAN`, `ConsoElecYTD`, `ConsoElecPLAN`, `ConsoEauYTD`, `ConsoEauPLAN`, `RecyclYTD`, `RecyclPLAN`, `DateAjout`) VALUES
-(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, '2023-07-28 14:13:02'),
-(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, '2023-07-28 14:13:21'),
-(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, '2023-07-28 14:13:29'),
-(4, 4, 4, 4, 4, 44, 4, 4, 4, 4, '2023-07-28 16:01:22'),
-(4, 4, 4, 4, 4, 44, 4, 4, 4, 4, '2023-07-31 09:05:01');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
