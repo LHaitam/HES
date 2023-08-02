@@ -248,27 +248,28 @@
 <?php
 function update_data_in_table($column_name, $new_value)
 {
-    // Connexion à la base de données
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "hes";
+    // Connexion à la base de données SQL Server
+    $serverName = "DESKTOP-AT05QHN\SQLEXPRESSt";
+    $connectionOptions = array(
+        "Database" => "hes",
+        "Uid" => "sa", // Remplacez par votre nom d'utilisateur SQL Server
+        "PWD" => "" // Remplacez par votre mot de passe SQL Server
+    );
 
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = sqlsrv_connect($serverName, $connectionOptions);
 
     // Vérifier la connexion
-    if ($conn->connect_error) {
-        die("Connexion échouée : " . $conn->connect_error);
+    if (!$conn) {
+        die(print_r(sqlsrv_errors(), true));
     }
 
     // Préparer la requête pour mettre à jour la dernière ligne dans la table hes
-    $stmt = $conn->prepare("UPDATE hes SET $column_name = ?, DateAjout = NOW() ORDER BY DateAjout DESC LIMIT 1");
+    $sql = "UPDATE hes SET $column_name = ?, DateAjout = GETDATE() WHERE Id IN (SELECT TOP 1 Id FROM hes ORDER BY DateAjout DESC)";
+    $params = array($new_value);
+    $stmt = sqlsrv_query($conn, $sql, $params);
 
-    // Lier la nouvelle valeur au paramètre dans la requête
-    $stmt->bind_param("s", $new_value);
-
-    // Exécuter la requête
-    if ($stmt->execute()) {
+    // Vérifier si la requête a réussi
+    if ($stmt) {
         // Nouvelle valeur mise à jour avec succès
         return true;
     } else {
@@ -277,38 +278,40 @@ function update_data_in_table($column_name, $new_value)
     }
 
     // Fermer la connexion à la base de données
-    $conn->close();
+    sqlsrv_close($conn);
 }
 ?>
 
 <?php
 function get_data_from_table($column_name)
 {
-    // Connexion à la base de données
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "hes";
+    // Connexion à la base de données SQL Server
+    $serverName = "DESKTOP-AT05QHN\SQLEXPRESSt";
+    $connectionOptions = array(
+        "Database" => "hes",
+        "Uid" => "sa", // Remplacez par votre nom d'utilisateur SQL Server
+        "PWD" => "" // Remplacez par votre mot de passe SQL Server
+    );
 
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = sqlsrv_connect($serverName, $connectionOptions);
 
     // Vérifier la connexion
-    if ($conn->connect_error) {
-        die("Connexion échouée : " . $conn->connect_error);
+    if (!$conn) {
+        die(print_r(sqlsrv_errors(), true));
     }
 
     if ($column_name === 'NbrJsA') {
         // Requête pour récupérer la dernière ligne ajoutée à la table hes
-        $sql = "SELECT $column_name, DateAjout FROM hes ORDER BY DateAjout DESC LIMIT 1";
-        $result = $conn->query($sql);
+        $sql = "SELECT TOP 1 $column_name, DateAjout FROM hes ORDER BY DateAjout DESC";
+        $stmt = sqlsrv_query($conn, $sql);
 
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
+        if ($stmt) {
+            $row = sqlsrv_fetch_array($stmt);
             $nbrJsA = $row[$column_name];
             $dateAjout = $row['DateAjout'];
 
             // Calculer le nombre de jours entre la date d'ajout et aujourd'hui
-            $dateAjout = new DateTime($dateAjout);
+            $dateAjout = new DateTime($dateAjout->format('Y-m-d H:i:s'));
             $aujourdhui = new DateTime();
             $interval = $dateAjout->diff($aujourdhui);
             $joursEcoulés = $interval->days;
@@ -327,11 +330,11 @@ function get_data_from_table($column_name)
         }
     } else {
         // Requête pour récupérer la dernière ligne ajoutée à la table hes
-        $sql = "SELECT $column_name FROM hes ORDER BY DateAjout DESC LIMIT 1";
-        $result = $conn->query($sql);
+        $sql = "SELECT TOP 1 $column_name FROM hes ORDER BY DateAjout DESC";
+        $stmt = sqlsrv_query($conn, $sql);
 
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
+        if ($stmt) {
+            $row = sqlsrv_fetch_array($stmt);
             return $row[$column_name];
         }
     }
@@ -339,7 +342,7 @@ function get_data_from_table($column_name)
     return "Aucune donnée trouvée"; // Renvoie un message si aucune donnée trouvée
 
     // Fermer la connexion à la base de données
-    $conn->close();
+    sqlsrv_close($conn);
 }
 ?>
 

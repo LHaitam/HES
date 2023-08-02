@@ -68,7 +68,7 @@ if (!isset($_SESSION['username'])) {
 </head>
 
 <body>
-    <?php
+<?php
     // Vérifier si le formulaire a été soumis
     if (isset($_POST['submit'])) {
         // Récupérer les données depuis le formulaire
@@ -86,31 +86,37 @@ if (!isset($_SESSION['username'])) {
         // Obtenir la date d'ajout au format AAAA-MM-JJ
         $dateAjout = date("Y-m-d H:i:s");
 
-        // Connexion à la base de données
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "hes";
+        // Connexion à la base de données SQL Server
+        $serverName = "DESKTOP-AT05QHN\SQLEXPRESSt";
+        $connectionOptions = array(
+            "Database" => "hes",
+            "Uid" => "sa", // Remplacez par votre nom d'utilisateur SQL Server
+            "PWD" => "" // Remplacez par votre mot de passe SQL Server
+        );
 
-        $conn = new mysqli($servername, $username, $password, $dbname);
+        $conn = sqlsrv_connect($serverName, $connectionOptions);
 
         // Vérifier la connexion
-        if ($conn->connect_error) {
-            die("Connexion échouée : " . $conn->connect_error);
+        if (!$conn) {
+            die(print_r(sqlsrv_errors(), true));
         }
 
         // Requête pour insérer les données avec la date d'ajout
         $sql = "INSERT INTO hes (NbrPrsn, NbrJsA, GazYTD, GazPLAN, ConsoElecYTD, ConsoElecPLAN, ConsoEauYTD, ConsoEauPLAN, RecyclYTD, RecyclPLAN, DateAjout) 
-                VALUES ('$NbrPrsn', '$NbrJsA', '$GazYTD', '$GazPLAN', '$ConsoElecYTD', '$ConsoElecPLAN', '$ConsoEauYTD', '$ConsoEauPLAN', '$RecyclYTD', '$RecyclPLAN', '$dateAjout')";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        if ($conn->query($sql) === TRUE) {
+        $params = array($NbrPrsn, $NbrJsA, $GazYTD, $GazPLAN, $ConsoElecYTD, $ConsoElecPLAN, $ConsoEauYTD, $ConsoEauPLAN, $RecyclYTD, $RecyclPLAN, $dateAjout);
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        // Vérifier si l'insertion a réussi
+        if ($stmt) {
             echo "Enregistrement effectué avec succès.";
         } else {
-            echo "Erreur lors de l'enregistrement : " . $conn->error;
+            echo "Erreur lors de l'enregistrement : " . print_r(sqlsrv_errors(), true);
         }
 
         // Fermer la connexion à la base de données
-        $conn->close();
+        sqlsrv_close($conn);
     }
     ?>
 

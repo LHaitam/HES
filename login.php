@@ -55,7 +55,7 @@
 </head>
 
 <body>
-    <?php
+<?php
     // Vérifier si le formulaire a été soumis
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Récupérer les données depuis le formulaire
@@ -63,8 +63,8 @@
         $password = $_POST['password'];
 
         // Connexion à la base de données
-        $servername = "localhost";
-        $db_username = "root";
+        $servername = "DESKTOP-AT05QHN\SQLEXPRESS";
+        $db_username = "sa";
         $db_password = "";
         $dbname = "hes";
 
@@ -89,13 +89,14 @@
             exit();
         } else {
             // Affiche un message d'erreur si les informations d'identification sont incorrectes
-            echo "<p style='color: red;'>Identifiant ou mot de passe incorrect.</p>";
+            echo "<p style='color: red;'>Nom d'utilisateur ou mot de passe incorrect.</p>";
         }
 
         // Fermer la connexion à la base de données
         $conn->close();
     }
     ?>
+    
     
     <img class="logo" src="./icons/logo1.png" alt="Logo">
 
