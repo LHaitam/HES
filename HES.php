@@ -155,11 +155,29 @@
 
         
     </style>
+    <script>
+        // Fonction pour mettre à jour la date et l'heure actuelles
+        function updateDateTime() {
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('fr-FR');
+            const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+            const dateTimeContainer = document.getElementById('currentDateTime');
+            dateTimeContainer.textContent = `${formattedDate} ${formattedTime}`;
+        }
+
+        // Appeler la fonction au chargement de la page et mettre à jour toutes les secondes (1000 ms)
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        });
+    </script>
 </head>
 
 <body>
     <fieldset>
         <legend>
+            <div id="currentDateTime" style="font-size: 25px;"></div>
             <h1 class="title">RFM Objectif EHS & Durabilité</h1>
             <h2>Sustainability & EHS Goal</h2>
         </legend>
